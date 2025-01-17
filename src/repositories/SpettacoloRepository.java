@@ -67,10 +67,10 @@ public class SpettacoloRepository {
 
     public static void updateSpettacolo(Integer id, SpettacoloRequest request) {
         String query = "UPDATE spettacolo SET data_ora = ?," +
-                       " genere = ?, " +
-                       "durata_in_ore = ?, " +
-                       "prezzo = ?, " +
-                       "id_sala = ? WHERE id = ?";
+                " genere = ?, " +
+                "durata_in_ore = ?, " +
+                "prezzo = ?, " +
+                "id_sala = ? WHERE id = ?";
         try {
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setTimestamp(1,Timestamp.valueOf(request.dataOra()));
@@ -117,16 +117,17 @@ public class SpettacoloRepository {
 
     public static List<Spettacolo> getSpettacoliDisponibili(String comune, LocalDate data) {
         String query = "SELECT spettacolo.* FROM spettacolo JOIN sala ON spettacolo.id_sala = sala.id" +
-                       "JOIN sede ON sala.id_sede = sede.id WHERE sede.comune = " + comune
-                      + "AND spettacolo.DATE(data_ora) = " + data.toString();
+                " JOIN sede ON sala.id_sede = sede.id WHERE sede.comune = '" + comune
+                + "' AND DATE(spettacolo.data_ora) = '" + data.toString() + "'";
+        System.out.println(query);
         try {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
-            List<Spettacolo> spettacolo = new ArrayList<>();
+            List<Spettacolo> spettacoli = new ArrayList<>();
             while (resultSet.next()) {
-                spettacolo.add(mapResultSetToSpettacolo(resultSet));
+                spettacoli.add(mapResultSetToSpettacolo(resultSet));
             }
-            return spettacolo;
+            return spettacoli;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -134,16 +135,16 @@ public class SpettacoloRepository {
 
     public static List<Spettacolo> getSpettacoliDisponibili(String comune, LocalDate data,String genere) {
         String query = "SELECT spettacolo.* FROM spettacolo JOIN sala ON spettacolo.id_sala = sala.id" +
-                "JOIN sede ON sala.id_sede = sede.id WHERE spettacolo.genere = " + genere + "AND sede.comune = " + comune
-                + "AND spettacolo.DATE(data_ora) = " + data.toString();
+                " JOIN sede ON sala.id_sede = sede.id WHERE spettacolo.genere = '" + genere + "' AND sede.comune = '" + comune
+                + "' AND DATE(spettacolo.data_ora) = '" + data.toString() +"'";
         try {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
-            List<Spettacolo> spettacolo = new ArrayList<>();
+            List<Spettacolo> spettacoli = new ArrayList<>();
             while (resultSet.next()) {
-                spettacolo.add(mapResultSetToSpettacolo(resultSet));
+                spettacoli.add(mapResultSetToSpettacolo(resultSet));
             }
-            return spettacolo;
+            return spettacoli;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -151,27 +152,27 @@ public class SpettacoloRepository {
 
     public static List<Spettacolo> getSpettacoliDisponibili(String comune, LocalDate data,String genere,Integer idSede) {
         String query = "SELECT spettacolo.* FROM spettacolo JOIN sala ON spettacolo.id_sala = sala.id" +
-                "JOIN sede ON sala.id_sede = sede.id WHERE sede.id =" + idSede +
-                "AND spettacolo.genere = " + genere + "AND sede.comune = " + comune
-                + "AND spettacolo.DATE(data_ora) = " + data.toString();
+                " JOIN sede ON sala.id_sede = sede.id WHERE sede.id =" + idSede +
+                " AND spettacolo.genere = '" + genere + "' AND sede.comune = '" + comune
+                + "' AND DATE(spettacolo.data_ora) = '" + data.toString() + "'";
         try {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
-            List<Spettacolo> spettacolo = new ArrayList<>();
+            List<Spettacolo> spettacoli = new ArrayList<>();
             while (resultSet.next()) {
-                spettacolo.add(mapResultSetToSpettacolo(resultSet));
+                spettacoli.add(mapResultSetToSpettacolo(resultSet));
             }
-            return spettacolo;
+            return spettacoli;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     public static List<String> get3GeneriUltimiSpettacoliByIdUtente(Integer idUtente) {
-        String query =  "SELECT DISTINCT spettacolo.genere FROM spettacolo " +
-                "JOIN biglietto ON spettacolo.id=biglietto.id_spettacolo" +
+        String query =  "SELECT DISTINCT spettacolo.genere,spettacolo.data_ora FROM spettacolo " +
+                "JOIN biglietto ON spettacolo.id=biglietto.id_spettacolo " +
                 "WHERE biglietto.id_utente = " + idUtente +
-                " ORDER BY spettacolo.data_ora DESC" +
+                " ORDER BY spettacolo.data_ora DESC " +
                 "LIMIT 3";
         try {
             Statement statement = connection.createStatement();
@@ -182,12 +183,12 @@ public class SpettacoloRepository {
             }
             return generi;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("L'utente con id "+ idUtente +" non ha visto nessuno spettacolo");
         }
     }
 
     public static List<Spettacolo> getSpettacoliByGenere(String genere) {
-        String query = "SELECT * FROM spettacolo WHERE genere = " + genere;
+        String query = "SELECT * FROM spettacolo WHERE genere = '" + genere + "'";
         try {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
@@ -197,8 +198,7 @@ public class SpettacoloRepository {
             }
             return spettacolo;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Non ci sono spettacoli di genere : "+ genere);
         }
     }
-
 }

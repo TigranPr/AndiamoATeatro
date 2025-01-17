@@ -123,8 +123,8 @@ public class BigliettoRepository {
 
     public static Integer countBigliettiPerUtenteInSpettacolo(Integer idSpettacolo,Integer idUtente) {
         String query =  "SELECT COUNT(*) AS numeroBiglietti FROM biglietto WHERE id_spettacolo = ?" +
-                        " AND id_utente = ? " +
-                        "GROUP BY id_utente";
+                " AND id_utente = ? " +
+                "GROUP BY id_utente";
         try {
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setInt(1, idSpettacolo);
@@ -139,9 +139,4 @@ public class BigliettoRepository {
         }
 
     }
-
-
-
-
-
 }

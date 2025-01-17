@@ -89,15 +89,18 @@ public class SalaRepository {
     }
 
     public static Integer countPostiDisponibiliByIdSalaAndIdSpettacolo(Integer idSala,Integer idSpettacolo){
-        String query = "SELECT COUNT(*) AS numero_posti_disponibili FROM posto JOIN sala ON sala.id=posto.id_sala WHERE posto.id_sala = ? AND posto.id NOT IN " +
+        String query = "SELECT COUNT(*) AS numero_posti_disponibili FROM posto JOIN sala ON sala.id=posto.id_sala " +
+                "JOIN spettacolo ON spettacolo.id_sala=sala.id WHERE spettacolo.id=? AND posto.id_sala = ? AND posto.id NOT IN " +
                 "(SELECT posto.id FROM biglietto JOIN posto ON biglietto.id_posto = posto.id WHERE posto.id_sala = ? " +
                 "AND biglietto.id_spettacolo = ?)";
 
         try {
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setInt(1,idSala);
+            statement.setInt(1,idSpettacolo);
             statement.setInt(2,idSala);
-            statement.setInt(3,idSpettacolo);
+            statement.setInt(3,idSala);
+            statement.setInt(4,idSpettacolo);
+            System.out.println(query);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()){
                 return resultSet.getInt("numero_posti_disponibili");
@@ -110,7 +113,8 @@ public class SalaRepository {
     }
 
     public static List<Integer> getNPostiDisponibiliByIdSalaAndIdSpettacolo(Integer idSala,Integer idSpettacolo,Integer nPosti){
-        String query = "SELECT posto.id FROM posto JOIN sala ON sala.id=posto.id_sala WHERE posto.id_sala = ? AND posto.id NOT IN " +
+        String query = "SELECT posto.id FROM posto JOIN sala ON sala.id=posto.id_sala " +
+                "JOIN spettacolo ON spettacolo.id_sala=sala.id WHERE spettacolo.id=? AND posto.id_sala = ? AND posto.id NOT IN " +
                 "(SELECT posto.id FROM biglietto JOIN posto ON biglietto.id_posto = posto.id WHERE posto.id_sala = ? " +
                 "AND biglietto.id_spettacolo = ?)" +
                 "ORDER BY posto.fila ASC, posto.numero ASC " +
@@ -118,13 +122,13 @@ public class SalaRepository {
 
         try {
             PreparedStatement statement = connection.prepareStatement(query);
-            statement.setInt(1,idSala);
+            statement.setInt(1,idSpettacolo);
             statement.setInt(2,idSala);
-            statement.setInt(3,idSpettacolo);
-            statement.setInt(4,nPosti);
+            statement.setInt(3,idSala);
+            statement.setInt(4,idSpettacolo);
+            statement.setInt(5,nPosti);
             ResultSet resultSet = statement.executeQuery();
             List<Integer> posti = new ArrayList<>();
-
             while (resultSet.next()){
                 posti.add(resultSet.getInt("id"));
             }

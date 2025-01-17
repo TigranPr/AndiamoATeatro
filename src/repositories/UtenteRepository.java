@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UtenteRepository {
-
     private static final Connection connection;
 
     static {
@@ -110,6 +109,5 @@ public class UtenteRepository {
         }
 
     }
-
 
 }
